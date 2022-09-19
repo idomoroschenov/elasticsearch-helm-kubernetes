@@ -43,4 +43,8 @@ helm test elasticsearch
  
 **Replica count** - Solution is designed to start Elasticsearch nodes with the same Elasticsearch roles which means that all nodes are master-eligible and can be elected as a new master. Generally, it's not recommended to have more than 3 master nodes in any cluster due to possible complexity and lag it will introduce, so the amount of replicas is set to 3.
  
-**Stateful Set** - StatefulSet is used as a controller for Elasticsearch deployment due to the stateful nature of the application. We need to have a persistent mapping between the processing unit in a form of pod and a storage for Elasticsearch to function correctly.
+**Stateful Set** - is used as a controller for Elasticsearch deployment due to the stateful nature of the application. We need to have a persistent mapping between the processing unit in a form of pod and a storage for Elasticsearch to function correctly.
+
+**Pod Disruption Budget** - is set up to limit the amount of pods that can be down during the voluntary disruption to the service to increase resiliency of the Elasticsearch cluster.
+
+**Anti affinity** - is used to spread the Elasticsearch nodes across the Kubernetes nodes and increase the availability of the application. This setting ensures the application can function in case of hardware issue with one of the nodes.
