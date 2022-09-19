@@ -43,8 +43,6 @@ spec:
           value: {{ .Values.clusterName }}
         - name: network.host
           value: 0.0.0.0
-        - name: cluster.deprecation_indexing.enabled
-          value: "false"
         - name: xpack.security.enabled
           value: "false"
         image: "docker.elastic.co/elasticsearch/elasticsearch:{{ .Values.elasticsearchImageTag }}" #TODO
