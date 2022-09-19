@@ -23,7 +23,7 @@ gcloud container clusters get-credentials <cluster-name> --region <cluster-regio
  
 3. Create a new namespace for the solution:
 ```bash
-kubectl create namespace <installation_namespace
+kubectl create namespace <installation_namespace>
 ```
 **NOTE:** This step depends on your technical requirements. You can also leverage any existing namespace in your cluster.
  
