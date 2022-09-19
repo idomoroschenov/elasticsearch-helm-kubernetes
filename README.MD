@@ -46,7 +46,7 @@ helm test elasticsearch
  
 **Helm** - Helm was used to pack the installation. Helm is a useful tool to combine several Kubernetes manifests in one logical unit, and centrally control variables passed to said manifests. Helm also allows adding custom logic in terms of functions and templates that make the solution more customizable. Tests can also be defined and executed as a part of the Helm pipeline.
  
-**Replica count** - Solution is designed to start Elasticsearch nodes with the same Elasticsearch roles which means that all nodes are master-eligible and can be elected as a new master. Generally, it's not recommended to have more than 3 master nodes in any cluster due to possible complexity and lag it will introduce, so the amount of replicas is set to 3.
+**Replica count** - Solution is designed to start Elasticsearch nodes with the same Elasticsearch roles which means that all nodes are master-eligible and can be elected as a new master. Generally, it's not recommended to have more than 3 master nodes in any cluster due to possible complexity and lag it will introduce, so the amount of replicas is set to 3. This solution implies that given a requirement to scale out to more than 3 nodes, this approach would be refactored and 3 dedicated master nodes will be deployed.
  
 **Stateful Set** - is used as a controller for Elasticsearch deployment due to the stateful nature of the application. We need to have a persistent mapping between the processing unit in a form of pod and a storage for Elasticsearch to function correctly.
 
