@@ -1,0 +1,21 @@
+applicationName: elasticsearch
+elasticsearchImageTag: 7.17.6
+podManagementPolicy: Parallel
+clusterName: elasticsearch-run
+elasticsearchResources:
+  limits:
+    cpu: 1000m
+    memory: 512M
+  requests:
+    cpu: 100m
+    memory: 512M
+mapCount: 262144
+elasticsearchVolumeSize: 30Gi
+test:
+  indexName: test-index
+  searchQuery:
+    query:
+      match:
+        test_key: test_value
+  putQuery:
+    test_key: test_value

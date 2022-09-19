@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ .Values.applicationName }}
+{{ include "common.labels" . | indent 4 }}
+  name: {{ .Values.applicationName }}
+spec:
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{ .Values.applicationName }}
+  serviceName: {{ .Values.applicationName }}-headless
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.applicationName }}
+        name: {{ .Values.applicationName }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution: #TODO
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ .Values.applicationName }}
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - env:
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: cluster.initial_master_nodes
+          value: "{{ .Values.applicationName }}-0,{{  .Values.applicationName }}-1,{{  .Values.applicationName }}-2,"
+        - name: discovery.seed_hosts
+          value: {{ .Values.applicationName }}-headless
+        - name: cluster.name
+          value: {{ .Values.clusterName }}
+        - name: network.host
+          value: 0.0.0.0
+        - name: cluster.deprecation_indexing.enabled
+          value: "false"
+        - name: xpack.security.enabled
+          value: "false"
+        image: "docker.elastic.co/elasticsearch/elasticsearch:{{ .Values.elasticsearchImageTag }}" #TODO
+        readinessProbe:
+          exec:
+            command:
+              - bash
+              - -c
+              - |
+                echo "Probing the cluster's health endpoint..."
+                if curl -k --fail -s -o /dev/null http://localhost:9200/_cluster/health ; then
+                exit 0
+                else
+                echo "Cluster's health endpoint doesn't respond. Cluster might not be ready to accept traffic..."
+                exit 1
+                fi
+          failureThreshold: 3
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 3
+          timeoutSeconds: 5
+        name: {{ .Values.applicationName }}
+        ports:
+        - containerPort: 9200
+          name: api
+          protocol: TCP
+        - containerPort: 9300
+          name: internal
+          protocol: TCP
+        resources:
+{{ toYaml .Values.elasticsearchResources | indent 11 }}
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+        volumeMounts:
+        - mountPath: /usr/share/elasticsearch/data
+          name: {{ .Values.applicationName }}
+      initContainers:
+      - command:
+        - sysctl
+        - -w
+        - "vm.max_map_count={{ .Values.mapCount | toString }}"
+        image: "docker.elastic.co/elasticsearch/elasticsearch:{{ .Values.elasticsearchImageTag | toString }}"
+        name: sysctl
+        securityContext:
+          privileged: true
+          runAsUser: 0
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: {{ .Values.applicationName }}
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.elasticsearchVolumeSize | toString }}
+      volumeMode: Filesystem
