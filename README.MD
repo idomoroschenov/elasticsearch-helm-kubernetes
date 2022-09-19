@@ -15,10 +15,15 @@ You need to have the following tools installed on your machine to deploy a solut
 1. Clone the repository
 2. Ensure that you have access to the Kubernetes cluster via [kubeconfig](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) file.
  
-**Example**: Authenticating to *GKE* cluster:
+**GCP Example**: Authenticating to *GKE* cluster:
  
 ```bash
 gcloud container clusters get-credentials <cluster-name> --region <cluster-region>
+```
+
+**AWS Example**: Authenticating to *EKS* cluster:
+```bash
+aws eks --region <cluster-region> update-kubeconfig --name <cluster_name>
 ```
  
 3. Create a new namespace for the solution:
