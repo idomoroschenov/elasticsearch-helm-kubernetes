@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.kibanaApplicationName }}
+  labels:
+    app: {{ .Values.global.kibanaApplicationName }}
+{{- include "kibana.labels" . | indent 4 }}
+spec:
+  ports:
+  - name: 80-5601
+    port: 80
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    app: {{ .Values.global.kibanaApplicationName }}
+  type: ClusterIP

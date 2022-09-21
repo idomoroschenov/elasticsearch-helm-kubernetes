@@ -2,31 +2,31 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: {{ .Values.applicationName }}
-{{ include "common.labels" . | indent 4 }}
-  name: {{ .Values.applicationName }}
+    app: {{ .Values.global.elasticsearchApplicationName }}
+{{ include "elasticsearch.labels" . | nindent 4 }}
+  name: {{ .Values.global.elasticsearchApplicationName }}
 spec:
   podManagementPolicy: {{ .Values.podManagementPolicy }}
   replicas: 3
   selector:
     matchLabels:
-      app: {{ .Values.applicationName }}
-  serviceName: {{ .Values.applicationName }}-headless
+      app: {{ .Values.global.elasticsearchApplicationName }}
+  serviceName: {{ .Values.global.elasticsearchApplicationName }}-headless
   template:
     metadata:
       labels:
-        app: {{ .Values.applicationName }}
-        name: {{ .Values.applicationName }}
+        app: {{ .Values.global.elasticsearchApplicationName }}
+        name: {{ .Values.global.elasticsearchApplicationName }}
     spec:
       affinity:
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution: #TODO
+          requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
               - key: app
                 operator: In
                 values:
-                - {{ .Values.applicationName }}
+                - {{ .Values.global.elasticsearchApplicationName }}
             topologyKey: kubernetes.io/hostname
       containers:
       - env:
@@ -36,16 +36,16 @@ spec:
               apiVersion: v1
               fieldPath: metadata.name
         - name: cluster.initial_master_nodes
-          value: "{{ .Values.applicationName }}-0,{{  .Values.applicationName }}-1,{{  .Values.applicationName }}-2,"
+          value: "{{ .Values.global.elasticsearchApplicationName }}-0,{{  .Values.global.elasticsearchApplicationName }}-1,{{  .Values.global.elasticsearchApplicationName }}-2,"
         - name: discovery.seed_hosts
-          value: {{ .Values.applicationName }}-headless
+          value: {{ .Values.global.elasticsearchApplicationName }}-headless
         - name: cluster.name
           value: {{ .Values.clusterName }}
         - name: network.host
           value: 0.0.0.0
         - name: xpack.security.enabled
           value: "false"
-        image: "docker.elastic.co/elasticsearch/elasticsearch:{{ .Values.elasticsearchImageTag }}" #TODO
+        image: "{{ .Values.elasticsearchImageAddress }}:{{ .Values.elasticsearchImageTag }}"
         readinessProbe:
           exec:
             command:
@@ -64,7 +64,7 @@ spec:
           periodSeconds: 10
           successThreshold: 3
           timeoutSeconds: 5
-        name: {{ .Values.applicationName }}
+        name: {{ .Values.global.elasticsearchApplicationName }}
         ports:
         - containerPort: 9200
           name: api
@@ -73,7 +73,7 @@ spec:
           name: internal
           protocol: TCP
         resources:
-{{ toYaml .Values.elasticsearchResources | indent 11 }}
+{{ toYaml .Values.elasticsearchResources | indent 12 }}
         securityContext:
           capabilities:
             drop:
@@ -81,7 +81,7 @@ spec:
           runAsNonRoot: true
         volumeMounts:
         - mountPath: /usr/share/elasticsearch/data
-          name: {{ .Values.applicationName }}
+          name: {{ .Values.global.elasticsearchApplicationName }}
       initContainers:
       - command:
         - sysctl
@@ -99,7 +99,7 @@ spec:
   - apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
-      name: {{ .Values.applicationName }}
+      name: {{ .Values.global.elasticsearchApplicationName }}
     spec:
       accessModes:
       - ReadWriteOnce

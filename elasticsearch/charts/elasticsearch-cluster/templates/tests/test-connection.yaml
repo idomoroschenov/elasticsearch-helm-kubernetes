@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Values.global.elasticsearchApplicationName }}-test-connection"
+  labels:
+{{ include "elasticsearch.labels" . | indent 4 }}
+  annotations:
+    helm.sh/hook: test
+spec:
+  containers:
+    - name: curl
+      image: curlimages/curl
+      command:
+        - sh
+        - -c
+        - |
+          set -e
+          echo "Creating a test index in Elasticsearch cluster: {{ .Values.test.indexName }}"
+          curl -k -s -w "\n" -X PUT http://{{ .Values.global.elasticsearchApplicationName }}:9200/{{ .Values.test.indexName }} -H "Content-Type: application/json" || exit 1
+          echo "Putting a test document to the index {{ .Values.test.indexName }}"
+          curl -k -s -w "\n" -X POST http://{{ .Values.global.elasticsearchApplicationName }}:9200/{{ .Values.test.indexName }}/_doc -H "Content-Type: application/json" -d {{ .Values.test.putQuery | toRawJson | quote }} || exit 1
+          echo "Searching for the document in index {{ .Values.test.indexName }}"
+          curl -k -s -w "\n" -X POST http://{{ .Values.global.elasticsearchApplicationName }}:9200/{{ .Values.test.indexName }}/_search -H "Content-Type: application/json" -d {{ .Values.test.searchQuery | toRawJson | quote }} || exit 1
+          echo "Deleting test index {{ .Values.test.indexName }}"
+          curl -k -s -w "\n" -X DELETE http://elasticsearch:9200/{{ .Values.test.indexName }} -H "Content-Type: application/json" || exit 1
+          echo "Test ran successfully"
+  restartPolicy: Never

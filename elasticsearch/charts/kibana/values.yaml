@@ -1,0 +1,14 @@
+kibanaResources:
+  requests:
+      cpu: 50m
+      memory: 512Mi
+  limits:
+      cpu: 1000m
+      memory: 512Mi
+applicationName: kibana
+imageAddress: docker.elastic.co/kibana/kibana
+imageTag: 7.17.6
+unavailablePodsPolicy: 1
+containerPort: 5601
+configPath: /home/kibana/
+replicaCount: 3

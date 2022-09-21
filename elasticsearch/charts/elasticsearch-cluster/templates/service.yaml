@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: {{ .Values.global.elasticsearchApplicationName }}
   labels:
-    app: {{ .Values.applicationName }}
-  name: {{ .Values.applicationName }}
+    app: {{ .Values.global.elasticsearchApplicationName }}
+{{ include "elasticsearch.labels" . | indent 4 }}
 spec:
   ports:
   - name: api
@@ -15,5 +16,5 @@ spec:
     protocol: TCP
     targetPort: 9300
   selector:
-    app: {{ .Values.applicationName }}
+    app: {{ .Values.global.elasticsearchApplicationName }}
   type: ClusterIP

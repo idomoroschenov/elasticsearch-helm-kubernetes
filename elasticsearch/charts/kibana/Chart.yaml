@@ -1,0 +1,4 @@
+apiVersion: v2
+description: Chart for deploying Kubana user interface for Elasticsearch
+name: kibana-cluster
+version: 1.0.0

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.global.kibanaApplicationName }}
+  labels:
+{{- include "kibana.labels" . | indent 4 }}
+data:
+  config:
+    |
+{{- include "kibana.config" . | toString | indent 4 }}

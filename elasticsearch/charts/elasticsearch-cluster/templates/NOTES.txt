@@ -1,7 +1,4 @@
 You have deployed the following release: {{ .Release.Name }}.
-This release deploys an Elasticsearch Cluster with a Kibana user interface. A chart has two subcharts: elasticsearch-cluster and kibana.
-A chart elasticsearch-cluster contains definition of a 3-node Elasticsearch cluster.
-A chart kibana contains definition of a Kibana cluster that acts as a user interface for Elasticsearch.
 To get further information, you can run the commands:
   $ helm status {{ .Release.Name }}
   $ helm get all {{ .Release.Name }}

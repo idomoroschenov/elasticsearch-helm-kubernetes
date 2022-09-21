@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.global.kibanaApplicationName }}
+  labels:
+    app: {{ .Values.global.kibanaApplicationName }}
+{{- include "kibana.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.global.kibanaApplicationName }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.global.kibanaApplicationName }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ .Values.global.kibanaApplicationName }}
+            topologyKey: kubernetes.io/hostname
+      volumes:
+        - name: "config-{{ .Values.global.kibanaApplicationName }}"
+          configMap:
+            name: {{ .Values.global.kibanaApplicationName }}
+            items:
+              - key: config
+                path: config
+      containers:
+      - image: "{{ .Values.imageAddress }}:{{ .Values.imageTag | toString }}"
+        name: {{ .Values.global.kibanaApplicationName }}
+        ports:
+          - containerPort: {{ .Values.containerPort | toString }}
+        resources:
+{{ toYaml .Values.kibanaResources | indent 12 }}
+        env:
+            - name: KBN_PATH_CONF
+              value: {{ .Values.configPath }}
+        volumeMounts:
+          - name: "config-{{ .Values.global.kibanaApplicationName }}"
+            mountPath: "{{ .Values.configPath }} ./bin/kibana"
+        readinessProbe:
+          exec:
+            command:
+              - bash
+              - -c
+              - |
+                echo "Probing kibana user interface..."
+                if curl -k --fail -s -o -L /dev/null http://localhost:5601/; then
+                exit 0
+                else
+                echo "Kibana is not able to accept traffic..."
+                exit 1
+                fi
+          failureThreshold: 3
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          successThreshold: 3
+          timeoutSeconds: 5

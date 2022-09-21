@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.global.elasticsearchApplicationName }}
+  labels:
+{{ include "elasticsearch.labels" . | indent 4 }}
+spec:
+  maxUnavailable: {{ .Values.unavailablePodsPolicy | toString }}
+  selector:
+    matchLabels:
+      app: {{ .Values.global.elasticsearchApplicationName }}

@@ -1,0 +1,4 @@
+apiVersion: v2
+description: Chart for deploying Elasticsearch cluster on Kubernetes
+name: elasticsearch-cluster
+version: 1.0.0
