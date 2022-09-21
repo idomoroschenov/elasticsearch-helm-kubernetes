@@ -1,6 +1,6 @@
 # Elasticsearch cluster on Kubernetes
  
-This repository contains a solution to deploy an Elasticsearch cluster to Kubernetes. Solution is offered in the form of a Helm chart and describes a 7.X-compatible highly-available, resilient Elasticsearch cluster.
+This repository contains a solution to deploy an Elasticsearch cluster with a Kibana user interface to Kubernetes. Solution is offered in the form of a Helm chart and describes a 7.X-compatible highly-available, resilient Elasticsearch cluster with a Kibana frontend.
  
 ## Prerequisites
 You need to have the following tools installed on your machine to deploy a solution to Kubernetes.
